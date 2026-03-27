@@ -686,9 +686,21 @@ export default function ClawSwitch() {
     setIsThinking(true);
 
     try {
+      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        addMessage(activeAgent.id, "assistant", "⚠️ No API key found. Please add VITE_ANTHROPIC_API_KEY to your .env file.");
+        setIsThinking(false);
+        return;
+      }
+
       const response = await fetch("/api/anthropic/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": "YOUR_ANTHROPIC_API_KEY", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
         body: JSON.stringify({
           model: activeAgent.id === "trader" ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-6",
           max_tokens: 1000,
